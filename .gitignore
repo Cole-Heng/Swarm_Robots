@@ -1,2 +1,5 @@
 *.jpg
 *.png
+*.avi
+*.save
+*.pyc
