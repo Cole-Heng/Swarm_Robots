@@ -25,7 +25,7 @@ mavlink_system_t mavlink_system = {
 
 int main() {
     char target_ip[100];
-    strcpy(target_ip, "127.0.0.1");
+    strcpy(target_ip, "172.25.52.79");
 	
 	float position[6] = {};
 	int sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -74,11 +74,15 @@ int main() {
     //mavlink_msg_global_position_int_pack(1,1,);
     printf("Begin Test\n");
 
-	for (int i = 0; i < 3; i++) {
-		mavlink_msg_heartbeat_pack(1, 200, &msg, MAV_TYPE_GCS, MAV_AUTOPILOT_INVALID, MAV_MODE_FLAG_TEST_ENABLED, 0, MAV_STATE_ACTIVE);
+	for (int i = 0; i < 50; i++) {
+		mavlink_msg_heartbeat_pack(42, 200, &msg, MAV_TYPE_GCS, MAV_AUTOPILOT_INVALID, MAV_MODE_FLAG_TEST_ENABLED, 0, MAV_STATE_ACTIVE);
 		len = mavlink_msg_to_send_buffer(buf, &msg);
 		bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&gcAddr, sizeof(struct sockaddr_in));
-		
+
+		mavlink_msg_set_position_target_local_ned_pack(42, 1, &msg, 101010, 1, 1, MAV_FRAME_LOCAL_NED, 0, 3.5, 9.2, 0, 2.5, 8.2, 0, 0, 0, 0, 0, 0);
+		len = mavlink_msg_to_send_buffer(buf, &msg);
+		bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&gcAddr, sizeof(struct sockaddr_in));
+
 		memset(buf, 0, BUFFER_LENGTH);
 		recsize = recvfrom(sock, (void *)buf, BUFFER_LENGTH, 0, (struct sockaddr *)&gcAddr, &fromlen);
 		if (recsize > 0)
@@ -96,6 +100,9 @@ int main() {
 				{
 					// Packet received
 					printf("\nReceived packet: SYS: %d, COMP: %d, LEN: %d, MSG ID: %d\n", msg.sysid, msg.compid, msg.len, msg.msgid);
+					if (msg.msgid == 0) {
+						printf("%d\n", mavlink_msg_heartbeat_get_system_status(&msg));
+					}
 				}
 			}
 			printf("\n");
