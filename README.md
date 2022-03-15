@@ -11,4 +11,10 @@ This branch creates the source code for UDP communications on the central system
 git clone git@github.com:mavlink/c_library_v2.git
 ```
 
+run
+```bash
+C_INCLUDE_PATH=~/Git/Swarm_Robots/include/Mavlink/
+export C_INCLUDE_PATH
+```
+
 gcc publisher.c -o publisher -I /home/coleh/Git/Swarm_Robots/include/Mavlink -I /home/coleh/Git/Swarm_Robots/include/Mavlink/common
