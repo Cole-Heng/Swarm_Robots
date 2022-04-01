@@ -115,7 +115,7 @@ void encode_signal(int signal, const char *target_ip) {
 	bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&target_addr, sizeof(struct sockaddr_in));
 }
 
-uint32_t decode_get_message_type(const mavlink_message_t* msg){
+uint8_t decode_get_message_type(const mavlink_message_t* msg){
     return msg->compid;
 }
 
@@ -141,4 +141,35 @@ float decode_get_vec_y(const mavlink_message_t* msg) {
 
 int decode_get_signal(const mavlink_message_t* msg) {
     return mavlink_msg_set_position_target_local_ned_get_coordinate_frame(msg);
+}
+
+uint8_t* read_from_socket(const char *target_ip, mavlink_message_t *msg) {
+    uint8_t buf[BUFFER_LENGTH];
+    ssize_t recsize;
+    struct sockaddr_in inAddr; 
+    socklen_t inLen = sizeof(inAddr);
+    mavlink_status_t status;
+
+    memset(&inAddr, 0, sizeof(inAddr));
+	inAddr.sin_family = AF_INET;
+	inAddr.sin_addr.s_addr = inet_addr(target_ip);
+	inAddr.sin_port = htons(14550);
+    memset(buf, 0, BUFFER_LENGTH);
+	recsize = recvfrom(sock, (void *)buf, BUFFER_LENGTH, 0, (struct sockaddr *)&inAddr, &inLen);
+    if (recsize > 0)
+      	{
+			// Something received - print out all bytes and parse packet
+			mavlink_status_t status;
+			
+			printf("Bytes Received from addr1: %d\nDatagram: ", (int)recsize);
+			for (int i = 0; i < recsize; ++i)
+			{
+				if (mavlink_parse_char(MAVLINK_COMM_0, buf[i], &msg, &status))
+				{
+					return true;
+				}
+			}
+			printf("\n");
+		}
+    return false;
 }
