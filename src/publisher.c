@@ -86,7 +86,7 @@ int main() {
 		len = mavlink_msg_to_send_buffer(buf, &msg);
 		bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&out1Addr, sizeof(struct sockaddr_in));
 
-		// mavlink_msg_set_position_target_local_ned_pack(42, 1, &msg, 101010, 1, 1, MAV_FRAME_LOCAL_NED, 0, 3.5, 9.2, 0, 2.5, 8.2, 0, 0, 0, 0, 0, 0);
+		mavlink_msg_set_position_target_local_ned_pack(42, 1, &msg, 101010, 1, 1, MAV_FRAME_LOCAL_NED, 0, 3.5, 9.2, 0, 2.5, 8.2, 0, 0, 0, 0, 0, 0);
 		// len = mavlink_msg_to_send_buffer(buf, &msg);
 		// bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&gcAddr, sizeof(struct sockaddr_in));
 
