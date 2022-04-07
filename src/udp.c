@@ -51,14 +51,14 @@ void send_heartbeat(const char* target_ip) {
     memset(&target_addr, 0, sizeof(target_addr));
 	target_addr.sin_family = AF_INET;
 	target_addr.sin_addr.s_addr = inet_addr(target_ip);
-	target_addr.sin_port = htons(14550);
+	target_addr.sin_port = htons(14551);
 
     uint8_t buf[BUFFER_LENGTH];
     socklen_t target_len = sizeof(&target_addr);
     int bytes_sent;
     mavlink_message_t msg;
 	uint16_t len;
-
+    printf("sending heartbeat\n");
     mavlink_msg_heartbeat_pack(42, 200, &msg, MAV_TYPE_GCS, MAV_AUTOPILOT_INVALID, MAV_MODE_FLAG_TEST_ENABLED, 0, MAV_STATE_ACTIVE);
 	len = mavlink_msg_to_send_buffer(buf, &msg);
 	bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&target_addr, sizeof(struct sockaddr_in));
@@ -69,7 +69,7 @@ void encode_position(int pos_type, float x, float y, const char *target_ip) {
     memset(&target_addr, 0, sizeof(target_addr));
 	target_addr.sin_family = AF_INET;
 	target_addr.sin_addr.s_addr = inet_addr(target_ip);
-	target_addr.sin_port = htons(14550);
+	target_addr.sin_port = htons(14551);
 
     uint8_t buf[BUFFER_LENGTH];
     socklen_t target_len = sizeof(&target_addr);
@@ -86,7 +86,7 @@ void encode_vector(float vx, float vy, const char *target_ip) {
     memset(&target_addr, 0, sizeof(target_addr));
 	target_addr.sin_family = AF_INET;
 	target_addr.sin_addr.s_addr = inet_addr(target_ip);
-	target_addr.sin_port = htons(14550);
+	target_addr.sin_port = htons(14551);
 
     uint8_t buf[BUFFER_LENGTH];
     socklen_t target_len = sizeof(&target_addr);
@@ -103,7 +103,7 @@ void encode_signal(int signal, const char *target_ip) {
     memset(&target_addr, 0, sizeof(target_addr));
 	target_addr.sin_family = AF_INET;
 	target_addr.sin_addr.s_addr = inet_addr(target_ip);
-	target_addr.sin_port = htons(14550);
+	target_addr.sin_port = htons(14551);
 
     uint8_t buf[BUFFER_LENGTH];
     socklen_t target_len = sizeof(&target_addr);
@@ -143,7 +143,7 @@ int decode_get_signal(const mavlink_message_t* msg) {
     return mavlink_msg_set_position_target_local_ned_get_coordinate_frame(msg);
 }
 
-uint8_t* read_from_socket(const char *target_ip, mavlink_message_t *msg) {
+int read_from_socket(const char *target_ip, mavlink_message_t *msg) {
     uint8_t buf[BUFFER_LENGTH];
     ssize_t recsize;
     struct sockaddr_in inAddr; 
@@ -160,11 +160,10 @@ uint8_t* read_from_socket(const char *target_ip, mavlink_message_t *msg) {
       	{
 			// Something received - print out all bytes and parse packet
 			mavlink_status_t status;
-			
 			printf("Bytes Received from addr1: %d\nDatagram: ", (int)recsize);
 			for (int i = 0; i < recsize; ++i)
 			{
-				if (mavlink_parse_char(MAVLINK_COMM_0, buf[i], &msg, &status))
+				if (mavlink_parse_char(MAVLINK_COMM_0, buf[i], msg, &status))
 				{
 					return true;
 				}

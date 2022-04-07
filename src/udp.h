@@ -35,7 +35,7 @@ float decode_get_pos_y(const mavlink_message_t* msg);
 float decode_get_vec_x(const mavlink_message_t* msg);
 float decode_get_vec_y(const mavlink_message_t* msg);
 int decode_get_signal(const mavlink_message_t* msg);
-uint8_t* read_from_socket(const char *target_ip, mavlink_message_t *msg);
+int read_from_socket(const char *target_ip, mavlink_message_t *msg);
 
 typedef struct vector vector;
 struct vector
