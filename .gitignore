@@ -1,0 +1,13 @@
+*
+!*.*
+!*/
+*.o
+
+/.vscode/*
+
+*.jpg
+*.png
+*.avi
+*.save
+*.pyc
+*.json
