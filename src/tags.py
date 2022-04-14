@@ -57,11 +57,45 @@ def mark_bots(results, nBots, frame):
 		i = i + 1
 	bots = []
 	for n in botIndex:
-                bots.append(results[n])
+		bots.append(results[n])
 	centers = extract_centers(bots)
 	for c in centers:
 		cv2.circle(frame, (int(c[0]), int(c[1])), 3, (255, 255, 0), 2)
 	return frame
+
+def get_bot_centers(results, nBots):
+	ids = extract_ids(results)
+	botIndex = []
+	i = 0
+	for n in ids:
+		if (n <= nBots):
+			botIndex.append(i)
+		i = i + 1
+	bots = [None] * len(botIndex)
+	for n in botIndex:
+		bots[results[n].tag_id - 1] = results[n]
+	centers = extract_centers(bots)
+	return centers
+	
+def get_two_corners(results, nBots):
+	ids = extract_ids(results)
+	botIndex = []
+	i = 0
+	for n in ids:
+		if (n <= nBots):
+			botIndex.append(i)
+		i = i + 1
+	bots = [None] * len(botIndex)
+	for n in botIndex:
+		bots[results[n].tag_id - 1] = results[n]
+	corners = [None] * len(botIndex)
+	for n in bots:
+		if (n != None):
+			(ptA, ptB, ptC, ptD) = n.corners
+			corners[n.tag_id] = (int(ptA[0]), int(ptA[1]), int(ptB[0]), int(ptB[1]))
+	return corners
+
+
 
 # Draws a box around the border of the tag and display the ID next to the tag 
 def mark_tags(results, frame):
