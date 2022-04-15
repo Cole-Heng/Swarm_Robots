@@ -115,6 +115,23 @@ void encode_signal(int signal, const char *target_ip) {
 	bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&target_addr, sizeof(struct sockaddr_in));
 }
 
+void encode_angle(float theta, const char *target_ip) {
+    struct sockaddr_in target_addr;
+    memset(&target_addr, 0, sizeof(target_addr));
+	target_addr.sin_family = AF_INET;
+	target_addr.sin_addr.s_addr = inet_addr(target_ip);
+	target_addr.sin_port = htons(14551);
+
+    uint8_t buf[BUFFER_LENGTH];
+    socklen_t target_len = sizeof(&target_addr);
+    int bytes_sent;
+    mavlink_message_t msg;
+	uint16_t len;
+    mavlink_msg_set_position_target_local_ned_pack(42, MESSAGE_ANGLE, &msg, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, theta, 0, 0, 0, 0, 0);
+	len = mavlink_msg_to_send_buffer(buf, &msg);
+	bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&target_addr, sizeof(struct sockaddr_in));
+}
+
 uint8_t decode_get_message_type(const mavlink_message_t* msg){
     return msg->compid;
 }
@@ -141,6 +158,10 @@ float decode_get_vec_y(const mavlink_message_t* msg) {
 
 int decode_get_signal(const mavlink_message_t* msg) {
     return mavlink_msg_set_position_target_local_ned_get_coordinate_frame(msg);
+}
+
+float decode_get_angle(const mavlink_message_t* msg) {
+    return mavlink_msg_set_position_target_local_ned_get_vz(msg);
 }
 
 int read_from_socket(const char *target_ip, mavlink_message_t *msg) {

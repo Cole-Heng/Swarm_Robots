@@ -8,12 +8,6 @@ import os
 import tags
 import apriltag
 
-for i in range(10):
-    x = i + 0.5
-    y = 100.5 - i
-    print(str(x) + "," + str(y) + "\n") #needs two EOL returns to read on C side
-    time.sleep(0.1)
-
 def send_signal_stop(bot_id):
     print(str(0) + "," + str(0) + "," + str(bot_id) + "\n")
 
@@ -111,6 +105,15 @@ def main():
             if (bot_1_stage == 0.5):
                 x_t[0] = x_b[0] + (30 * cos(pi / 4))
                 y_t[0] = y_b[0] - (30 * sin(pi / 4))
+            if (bot_1_stage == 1.5):
+                x_t[0] = x_b[0] + (30 * cos(pi / 4))
+                y_t[0] = y_b[0] + (30 * sin(pi / 4))
+            if (bot_1_stage == 2.5):
+                x_t[0] = x_b[0] + (100 * cos(pi / 3))
+                y_t[0] = y_b[0] - (100 * sin(pi / 3))
+            if (bot_1_stage == 3.5):
+                x_t[0] = x_b[0]
+                y_t[0] = y_b[0] - 25
 
         if (dist([x_t[1], y_t[1]], [x_b[1], y_b[1]]) <= 10):
             send_signal_stop(2)
@@ -118,6 +121,18 @@ def main():
             if (bot_1_stage == 0.5):
                 x_t[1] = x_b[1] + (15 * cos(pi / 4))
                 y_t[1] = y_b[1] - (15 * sin(pi / 4))
+            if (bot_1_stage == 1.5):
+                x_t[1] = x_b[1] + 50
+                y_t[1] = y_b[1]
+            if (bot_1_stage == 2.5):
+                x_t[1] = x_b[1] + (15 * cos(pi / 4))
+                y_t[1] = y_b[1] - (15 * sin(pi / 4))
+            if (bot_1_stage == 3.5):
+                x_t[1] = x_b[1]
+                y_t[1] = y_b[1] + 75
+            if (bot_1_stage == 3.5):
+                x_t[1] = x_b[1]
+                y_t[1] = y_b[1] - 75
 
         if (bot_1_stage % 1 == 0.5):
             if (corners[0] != None):
@@ -128,7 +143,8 @@ def main():
                     send_angle(bot_1_offset, 1)
                 else:
                     bot_1_stage = bot_1_stage + 0.5
-                    send_signal_start(1)
+                    if (bot_1_stage != 4):
+                        send_signal_start(1)
 
         if (bot_2_stage % 1 == 0.5):
             if (corners[0] != None):
@@ -141,10 +157,6 @@ def main():
                     bot_2_stage = bot_2_stage + 0.5
                     send_signal_start(2)
     
-
-    offset
-
-    #while(1):
 
 
 if __name__ == "__main__":
