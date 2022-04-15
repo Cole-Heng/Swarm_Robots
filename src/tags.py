@@ -68,12 +68,12 @@ def get_bot_centers(results, nBots):
 	botIndex = []
 	i = 0
 	for n in ids:
-		if (n <= nBots):
+		if (n < nBots):
 			botIndex.append(i)
 		i = i + 1
 	bots = [None] * len(botIndex)
 	for n in botIndex:
-		bots[results[n].tag_id - 1] = results[n]
+		bots[results[n].tag_id] = results[n]
 	centers = extract_centers(bots)
 	return centers
 	
@@ -82,12 +82,12 @@ def get_two_corners(results, nBots):
 	botIndex = []
 	i = 0
 	for n in ids:
-		if (n <= nBots):
+		if (n < nBots):
 			botIndex.append(i)
 		i = i + 1
 	bots = [None] * len(botIndex)
 	for n in botIndex:
-		bots[results[n].tag_id - 1] = results[n]
+		bots[results[n].tag_id] = results[n]
 	corners = [None] * len(botIndex)
 	for n in bots:
 		if (n != None):
