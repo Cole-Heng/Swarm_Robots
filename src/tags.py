@@ -32,7 +32,8 @@ def get_frame():
 def extract_centers(results):
 	centers = []
 	for r in results:
-		centers.append(r.center)
+            if (r != None):
+                centers.append(r.center)
 	return centers
 
 # Returns a list of all tag IDs found in the frame
@@ -71,7 +72,7 @@ def get_bot_centers(results, nBots):
 		if (n < nBots):
 			botIndex.append(i)
 		i = i + 1
-	bots = [None] * len(botIndex)
+	bots = [None] * nBots
 	for n in botIndex:
 		bots[results[n].tag_id] = results[n]
 	centers = extract_centers(bots)
@@ -85,14 +86,14 @@ def get_two_corners(results, nBots):
 		if (n < nBots):
 			botIndex.append(i)
 		i = i + 1
-	bots = [None] * len(botIndex)
+	bots = [None] * nBots
 	for n in botIndex:
 		bots[results[n].tag_id] = results[n]
-	corners = [None] * len(botIndex)
+	corners = [None] * nBots
 	for n in bots:
 		if (n != None):
 			(ptA, ptB, ptC, ptD) = n.corners
-			corners[n.tag_id] = (int(ptA[0]), int(ptA[1]), int(ptB[0]), int(ptB[1]))
+			corners[n.tag_id] = (int(ptA[0]), int(ptA[1]), int(ptD[0]), int(ptD[1]))
 	return corners
 
 
