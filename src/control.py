@@ -9,27 +9,27 @@ import tags
 import apriltag
 
 def send_signal_stop(bot_id):
-    print(str(0) + "," + str(0) + "," + str(bot_id) + "\n")
+    print(str(0) + "," + str(0) + "," + str(bot_id), flush=True)
 
 def send_signal_start(bot_id):
-    print(str(0) + "," + str(1) + "," + str(bot_id) + "\n")
+    print(str(0) + "," + str(1) + "," + str(bot_id), flush=True)
 
 def send_signal_OOB(bot_id):
-    print(str(0) + "," + str(2) + "," + str(bot_id) + "\n")
+    print(str(0) + "," + str(2) + "," + str(bot_id), flush=True)
 
 def send_pos_home(x, y, bot_id):
-    print(str(1) + "," + str(0) + "," + str(x) + "," + str(y) + "," + str(bot_id) + "\n")
+    print(str(1) + "," + str(0) + "," + str(x) + "," + str(y) + "," + str(bot_id), flush=True)
 
 def send_pos_current(x, y, bot_id):
-    print(str(1) + "," + str(1) + "," + str(x) + "," + str(y) + "," + str(bot_id) + "\n")
+    print(str(1) + "," + str(1) + "," + str(x) + "," + str(y) + "," + str(bot_id), flush=True)
 
 def send_pos_target(x, y, bot_id):
-    print(str(1) + "," + str(2) + "," + str(x) + "," + str(y) + "," + str(bot_id) + "\n")
+    print(str(1) + "," + str(2) + "," + str(x) + "," + str(y) + "," + str(bot_id), flush=True)
 
 #TODO: add send vector if needed
 
 def send_angle(theta, bot_id):
-    print(str(3) + "," + str(theta) + "," + str(bot_id) + "\n")
+    print(str(3) + "," + str(theta) + "," + str(bot_id), flush=True)
 
 def calc_offset(x_bot, y_bot, x_tar, y_tar, x_c1, y_c1, x_c2, y_c2):
     theta1 = float(degrees(atan2((y_tar - y_bot), (x_tar - x_bot))))

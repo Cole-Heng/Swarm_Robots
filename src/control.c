@@ -39,8 +39,8 @@ int main () {
         } else if (message == MESSAGE_VECTOR) {
             //TODO add code for vector if needed
         } else if (message == MESSAGE_ANGLE) {
-            //fprintf(file_out, "sending %f to %f", p1, p2);
-	    //fflush(file_out);
+            fprintf(file_out, "sending %f to %f\n", p1, p2);
+	    fflush(file_out);
 	    if ((int)p2 == 0) {
                 encode_angle(p1, IPs[(int)p2]);
 	    }
