@@ -6,8 +6,8 @@
 int main () {
     udp_init();
     char IPs[2][15];
-    strcpy(IPs[0], "172.25.55.115");
-    strcpy(IPs[1], "172.25.52.78");
+    strcpy(IPs[0], "172.25.52.185");
+    strcpy(IPs[1], "172.25.54.86");
     mavlink_message_t msg;
     //char str_in[25];
     float p1 = -1;
@@ -35,15 +35,15 @@ int main () {
             p4 = atoi(strtok(NULL, ","));
             encode_position(p1, p2, p3, IPs[p4]);
         } else if (message == MESSAGE_SIGNAL) {
+	    fprintf(file_out, "sending signal %f to %f\n", p1, p2);
+            fflush(file_out);
             encode_signal((int)p1, IPs[(int)p2]);
         } else if (message == MESSAGE_VECTOR) {
             //TODO add code for vector if needed
         } else if (message == MESSAGE_ANGLE) {
-            fprintf(file_out, "sending %f to %f\n", p1, p2);
+            fprintf(file_out, "sending angle %f to %f\n", p1, p2);
 	    fflush(file_out);
-	    if ((int)p2 == 0) {
-                encode_angle(p1, IPs[(int)p2]);
-	    }
+            encode_angle(p1, IPs[(int)p2]);
         }
 	}
 	//encode_position(POS_TARGET, x, y, out_ip1);

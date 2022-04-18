@@ -35,10 +35,14 @@ def calc_offset(x_bot, y_bot, x_tar, y_tar, x_c1, y_c1, x_c2, y_c2):
     theta1 = float(degrees(atan2((y_tar - y_bot), (x_tar - x_bot))))
     theta2 = float(degrees(atan2((y_c1 - y_c2), (x_c1 - x_c2))))
     offset = theta1 - theta2
+    if (offset > 180.0):
+        offset = offset - 360
+    elif (offset < -180.0):
+        offset = offset + 360
     #offset = float(degrees(atan2((m_bot - m_target), (1 + (m_bot * m_target)))))
     #if (offset < 0):
     #    offset = -1 * (180 + offset)
-    return offset
+    return offset * -1
 
 def calc_slope(x1, y1, x2, y2):
     #if (x2 - x1 == 0):
@@ -52,11 +56,13 @@ def mark_debug(frame, x_b, y_b, x_t, y_t):
     out = frame
     for i in range(len(x_b)):
         cv2.circle(out, (int(x_b[i]), int(y_b[i])), 5, (0, 255, 0), -1)
-        cv2.circle(out, (int(x_t[i]), int(y_t[i])), 10, (255, 0, 0), 1)
+        cv2.circle(out, (int(x_t[i]), int(y_t[i])), 15, (255, 0, 0), 1)
     cv2.imshow("DEBUG", out)
 
 
 def main():
+    send_signal_stop(0)
+    send_signal_stop(1)
     DEBUG = True
     nBots = 2
     x_t = [None] * nBots
@@ -79,9 +85,10 @@ def main():
         centers = tags.get_bot_centers(results, nBots)
         if (len(centers) == 2):
             for i in range(nBots) :
-                #if (centers[i] != None):
-                    x_b[i] = centers[i][0]
-                    y_b[i] = centers[i][1]
+                if (centers[i][0] == -1):
+                    continue
+                x_b[i] = centers[i][0]
+                y_b[i] = centers[i][1]
 
     x_t[0] = x_b[0] + (100 * cos(pi / 3))
     y_t[0] = y_b[0] - (100 * sin(pi / 3))
@@ -110,9 +117,10 @@ def main():
         centers = tags.get_bot_centers(results, nBots)
         if (len(centers) == 2):
             for i in range(nBots) :
-                #if (centers[i] != None):
-                    x_b[i] = centers[i][0]
-                    y_b[i] = centers[i][1]
+                if (centers[i][0] == -1):
+                    continue
+                x_b[i] = centers[i][0]
+                y_b[i] = centers[i][1]
         frame_mod = frame
 
         if (corners[0] != None):
@@ -143,12 +151,16 @@ def main():
         cv2.putText(frame_mod, str(bot_0_offset), (25, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
         cv2.putText(frame_mod, str(bot_1_offset), (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
         if (bot_0_offset != None and bot_1_offset != None):
-            if (abs(bot_0_offset) <= 10 and abs(bot_1_offset) <= 10):
+            if (abs(bot_0_offset) <= 5 and abs(bot_1_offset) <= 5):
                 break
 
     send_signal_start(0)
     send_signal_start(1)
-    while (bot_0_stage < 4 and bot_1_stage < 5): 
+    msg_0_count = 0
+    msg_1_count = 0
+    msg_0_go_count = 0
+    msg_1_go_count = 0
+    while (bot_0_stage < 4 or bot_1_stage < 5): 
         frame_mod = frame
         if (DEBUG == True):
             #print("Code Location: Shape Control")
@@ -175,12 +187,14 @@ def main():
         centers = tags.get_bot_centers(results, nBots)
         corners = tags.get_two_corners(results, nBots)
 
-        for i in range(nBots) :
-            if (len(centers) == 2):
+        for i in range(nBots):
+            if (len(centers[i]) == 2):
+                if (centers[i][0] == -1):
+                    continue
                 x_b[i] = centers[i][0]
                 y_b[i] = centers[i][1]
 
-        if (calc_dist([x_t[0], y_t[0]], [x_b[0], y_b[0]]) <= 10):
+        if (calc_dist([x_t[0], y_t[0]], [x_b[0], y_b[0]]) <= 15 and bot_0_stage < 4):
             send_signal_stop(0)
             bot_0_stage = bot_0_stage + 0.5
             if (bot_0_stage == 0.5):
@@ -190,13 +204,19 @@ def main():
                 x_t[0] = x_b[0] + (50 * cos(pi / 4))
                 y_t[0] = y_b[0] - (50 * sin(pi / 4))
             if (bot_0_stage == 2.5):
-                x_t[0] = x_b[0] + (100 * cos(pi / 3))
+                x_t[0] = x_b[0] + (100 * cos(pi / 3) + 5)
                 y_t[0] = y_b[0] + (100 * sin(pi / 3))
             if (bot_0_stage == 3.5):
                 x_t[0] = x_b[0]
                 y_t[0] = y_b[0] + 25
+        elif (bot_0_stage % 1 == 0.0 and bot_0_stage != 4):
+            msg_0_go_count += 1
+            if (msg_0_go_count >= 4):
+                msg_0_go_count = 0
+                send_signal_start(0)
 
-        if (calc_dist([x_t[1], y_t[1]], [x_b[1], y_b[1]]) <= 10):
+
+        if (calc_dist([x_t[1], y_t[1]], [x_b[1], y_b[1]]) <= 15 and bot_1_stage < 5):
             send_signal_stop(1)
             bot_1_stage = bot_1_stage + 0.5
             if (bot_1_stage == 0.5):
@@ -207,13 +227,18 @@ def main():
                 y_t[1] = y_b[1]
             if (bot_1_stage == 2.5):
                 x_t[1] = x_b[1] + (50 * cos(pi / 4))
-                y_t[1] = y_b[1] + (50 * sin(pi / 4))
+                y_t[1] = y_b[1] - (50 * sin(pi / 4))
             if (bot_1_stage == 3.5):
                 x_t[1] = x_b[1]
                 y_t[1] = y_b[1] - 75
-            if (bot_1_stage == 3.5):
+            if (bot_1_stage == 4.5):
                 x_t[1] = x_b[1]
                 y_t[1] = y_b[1] + 75
+        elif (bot_1_stage % 1 == 0.0 and bot_1_stage != 5):
+            msg_1_go_count += 1
+            if (msg_1_go_count >= 4):
+                msg_1_go_count = 0
+                send_signal_start(1)
 
         if (bot_0_stage % 1 == 0.5):
             if (corners[0] != None):
@@ -221,12 +246,16 @@ def main():
                 #target_1_slope = calc_slope(x_t[0], y_t[0], x_b[0], y_b[0])
                 #bot_0_offset = calc_offset(target_1_slope, bot_0_slope)
                 bot_0_offset = calc_offset(x_b[0], y_b[0], x_t[0], y_t[0], corners[0][0], corners[0][1], corners[0][2], corners[0][3])
-                if (abs(bot_0_offset) >  5):
-                    send_angle(bot_0_offset, 0)
-                else:
-                    bot_0_stage = bot_0_stage + 0.5
-                    if (bot_0_stage != 4):
-                        send_signal_start(0)
+                if (bot_0_offset != None):
+                    if (abs(bot_0_offset) >  5):
+                        msg_0_count = msg_0_count + 1
+                        if (msg_0_count >= 8):
+                            msg_0_count = 0
+                            send_angle(bot_0_offset, 0)
+                    else:
+                        bot_0_stage = bot_0_stage + 0.5
+                        if (bot_0_stage != 4):
+                            send_signal_start(0)
 
         if (bot_1_stage % 1 == 0.5):
             if (corners[1] != None):
@@ -234,12 +263,16 @@ def main():
                 #target_2_slope = calc_slope(x_t[1], y_t[1], x_b[1], y_b[1])
                 #bot_1_offset = calc_offset(target_2_slope, bot_1_slope)
                 bot_1_offset = calc_offset(x_b[1], y_b[1], x_t[1], y_t[1], corners[1][0], corners[1][1], corners[1][2], corners[1][3])
-                if (abs(bot_1_offset) >  5):
-                    send_angle(bot_1_offset, 1)
-                else:
-                    bot_1_stage = bot_1_stage + 0.5
-                    send_signal_start(1)
-    
+                if (bot_1_offset != None):
+                    if (abs(bot_1_offset) >  5):
+                        msg_1_count = msg_1_count + 1
+                        if (msg_1_count >= 8):
+                            msg_1_count = 0
+                            send_angle(bot_1_offset, 1)
+                    else:
+                        bot_1_stage = bot_1_stage + 0.5
+                        if (bot_1_stage != 5):
+                            send_signal_start(1)
 
 
 if __name__ == "__main__":
